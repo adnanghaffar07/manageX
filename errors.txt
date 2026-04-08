@@ -1,0 +1,9 @@
+src/components/common/Button.tsx(1,17): error TS1484: 'ButtonHTMLAttributes' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/common/Input.tsx(1,17): error TS1484: 'InputHTMLAttributes' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AuthContext.tsx(2,10): error TS1484: 'User' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AuthContext.tsx(2,16): error TS1484: 'Session' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/features/auth/views/AuthPage.tsx(2,26): error TS2307: Cannot find module '../../config/supabase' or its corresponding type declarations.
+src/features/auth/views/AuthPage.tsx(3,24): error TS2307: Cannot find module '../../components/common/Button' or its corresponding type declarations.
+src/features/auth/views/AuthPage.tsx(4,23): error TS2307: Cannot find module '../../components/common/Input' or its corresponding type declarations.
+src/features/auth/views/AuthPage.tsx(66,24): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/features/auth/views/AuthPage.tsx(74,24): error TS7006: Parameter 'e' implicitly has an 'any' type.
