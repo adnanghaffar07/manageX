@@ -271,7 +271,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
               style={{ minHeight: '90px', resize: 'vertical' }}
               value={formData.additionalInfo}
               onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
-              placeholder="Any additional notes, VAT number, etc."
+              placeholder="Any additional notes"
             />
           </div>
 
@@ -281,7 +281,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
               Cancel
             </Button>
             <Button type="submit" isLoading={loading}>
-              ✓ Set Recipient Data
+              ✓ Save Client
             </Button>
           </div>
 

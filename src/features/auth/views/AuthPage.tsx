@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../../config/supabase';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Mail } from 'lucide-react';
 
 export const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +10,7 @@ export const AuthPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,8 +24,7 @@ export const AuthPage: React.FC = () => {
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        // Optional: show a message about confirming email if email confirmation is required in Supabase
-        alert('Check your email for the confirmation link!');
+        setShowSuccessModal(true);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during authentication');
@@ -35,6 +35,23 @@ export const AuthPage: React.FC = () => {
 
   return (
     <div className="auth-container">
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
+          <div className="modal-content" style={{ maxWidth: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '2.5rem 2rem', gap: '1rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#3b82f6', marginBottom: '8px' }}>
+               <Mail size={36} />
+            </div>
+            <h3 className="text-2xl font-bold">Check your email</h3>
+            <p className="text-sm text-muted" style={{ lineHeight: '1.6' }}>
+              We've sent a magic link to <br/><strong className="text-foreground" style={{ fontSize: '1.05rem', display: 'inline-block', marginTop: '6px' }}>{email}</strong><br/><br/>
+              Please click the link to confirm your account.
+            </p>
+            <Button type="button" onClick={() => setShowSuccessModal(false)} style={{ width: '100%', marginTop: '12px' }}>
+              Awesome, thanks!
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="auth-card">
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center justify-center p-4 rounded-lg mb-4" style={{ backgroundColor: 'var(--accent)' }}>
