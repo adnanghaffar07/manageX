@@ -4,6 +4,7 @@ import { Layout } from './components/layout/Layout';
 import { useAuth } from './context/AuthContext';
 
 import { InvoiceDashboard } from './features/invoices/views/InvoiceDashboard';
+import { InvoiceFormPage } from './features/invoices/views/InvoiceFormPage';
 
 // Placeholders for views we will create
 const Dashboard = () => <div className="p-6"><h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2><p className="text-muted">Welcome to ManageX. Select a feature from the sidebar.</p></div>;
@@ -18,6 +19,8 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Dashboard />} />
         <Route path="invoices" element={<InvoiceDashboard />} />
+        <Route path="invoices/new" element={<InvoiceFormPage />} />
+        <Route path="invoices/:id/edit" element={<InvoiceFormPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../../config/supabase';
 import type { Invoice } from '../types';
 import { InvoiceList } from '../components/InvoiceList';
-import { InvoiceForm } from '../components/InvoiceForm';
 import { Button } from '../../../components/common/Button';
 import { Plus, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const InvoiceDashboard: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const navigate = useNavigate();
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -34,38 +33,28 @@ export const InvoiceDashboard: React.FC = () => {
   }, []);
 
   const handleEdit = (invoice: Invoice) => {
-    setEditingInvoice(invoice);
-    setIsFormOpen(true);
+    navigate(`/invoices/${invoice.id}/edit`);
   };
 
   const handleAddNew = () => {
-    setEditingInvoice(null);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSuccess = () => {
-    setIsFormOpen(false);
-    setEditingInvoice(null);
-    fetchInvoices();
+    navigate('/invoices/new');
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex justify-between items-center sm:flex-col sm:items-start" style={{ flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="flex flex-col gap-6 w-full px-1 sm:px-0">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Invoices</h2>
-          <p className="text-muted text-sm mt-2">Manage your billing and payments.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Invoices</h2>
+          <p className="text-muted text-sm mt-2">Manage your billing, client payments, and invoice status in one place.</p>
         </div>
-        {!isFormOpen && (
-          <Button onClick={handleAddNew} className="flex items-center">
-            <Plus size={16} className="mr-2" />
-            New Invoice
-          </Button>
-        )}
+        <Button onClick={handleAddNew} className="flex items-center sm:w-auto justify-center">
+          <Plus size={16} className="mr-2" />
+          Create Invoice
+        </Button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: isFormOpen ? '2fr 1fr' : '1fr', gap: '1.5rem', alignItems: 'start' }}>
-        <div>
+      <div className="grid grid-cols-1 gap-6 items-start">
+        <div className="w-full rounded-xl border bg-[var(--surface-color)] p-2 sm:p-3">
           {loading ? (
             <div className="flex justify-center p-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -74,19 +63,6 @@ export const InvoiceDashboard: React.FC = () => {
             <InvoiceList invoices={invoices} onEdit={handleEdit} onRefresh={fetchInvoices} />
           )}
         </div>
-
-        {isFormOpen && (
-          <div>
-            <InvoiceForm
-              initialData={editingInvoice}
-              onSuccess={handleFormSuccess}
-              onCancel={() => {
-                setIsFormOpen(false);
-                setEditingInvoice(null);
-              }}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

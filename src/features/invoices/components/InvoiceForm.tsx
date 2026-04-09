@@ -4,8 +4,9 @@ import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import type { Invoice, Client, InvoiceItem } from '../types';
-import { fetchClients, createClient } from '../../clients/api';
+import { fetchClients } from '../../clients/api';
 import { Plus, Trash2 } from 'lucide-react';
+import { ClientFormModal } from '../../clients/components/ClientFormModal';
 
 interface InvoiceFormProps {
   onSuccess: () => void;
@@ -18,10 +19,8 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   
-  // Create quick client state
+  // Create client form modal state
   const [isAddingClient, setIsAddingClient] = useState(false);
-  const [newClientName, setNewClientName] = useState('');
-
   // Form states
   const [formData, setFormData] = useState({
     client_id: initialData?.client_id || '',
@@ -61,27 +60,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
     if (data) setItems(data);
   };
 
-  const handleAddClient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !newClientName.trim()) return;
-    try {
-      setLoading(true);
-      const newClient = await createClient(user.id, {
-        name: newClientName,
-        email: null,
-        phone: null,
-        address: null
-      });
-      setClients([newClient, ...clients]);
-      setFormData({ ...formData, client_id: newClient.id });
-      setIsAddingClient(false);
-      setNewClientName('');
-    } catch (e) {
-      alert('Failed to quickly add client.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   // Calculations
   const updateItem = (index: number, field: keyof InvoiceItem, value: any) => {
@@ -164,29 +143,28 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
   };
 
   return (
-    <div className="card h-full" style={{ overflowY: 'auto', maxHeight: '85vh' }}>
-      <h3 className="text-xl font-semibold mb-6">
-        {initialData ? 'Edit Invoice' : 'Create New Invoice'}
-      </h3>
-      
-      {isAddingClient ? (
-        <form onSubmit={handleAddClient} className="mb-6 p-4 rounded-lg space-y-3" style={{ border: '1px solid rgba(var(--primary), 0.3)', backgroundColor: 'rgba(var(--primary), 0.05)' }}>
-          <Input 
-            label="Fast Client Setup (Name only)" 
-            value={newClientName} 
-            onChange={e => setNewClientName(e.target.value)} 
-            required 
-            placeholder="E.g. Acme Corp..."
-          />
-          <div className="flex gap-2" style={{marginTop: '17px'}}>
-            <Button type="submit" isLoading={loading} className="text-xs h-8">Save Client</Button>
-            <Button type="button" variant="ghost" onClick={() => setIsAddingClient(false)} className="text-xs h-8">Cancel</Button>
-          </div>
-        </form>
-      ) : (
+    <div className="card h-full max-w-none mx-auto shadow-sm rounded-xl p-4 sm:p-6 lg:p-8">
+      <div className="mb-8">
+        <h3 className="text-2xl font-bold">
+          {initialData ? 'Edit Invoice' : 'Create New Invoice'}
+        </h3>
+        <p className="text-muted mt-2">Fill out the details below to complete this invoice.</p>
+      </div>
+
+      {isAddingClient && (
+        <ClientFormModal
+          onClose={() => setIsAddingClient(false)}
+          onSuccess={(newClient) => {
+            setClients([newClient, ...clients]);
+            setFormData({ ...formData, client_id: newClient.id });
+            setIsAddingClient(false);
+          }}
+        />
+      )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            <div className="flex flex-col gap-2" style={{ gridColumn: 'span 2' }}>
+          <div className="form-grid">
+            <div className="flex flex-col gap-2 w-full">
               <div className="flex justify-between items-center">
                 <label>Client</label>
                 <button type="button" onClick={() => setIsAddingClient(true)} className="text-xs text-primary add-new-btn">
@@ -204,16 +182,18 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               </select>
             </div>
             
-            <Input
-              label="Invoice Number"
-              value={formData.invoice_number}
-              onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
-              required
-              style={{ gridColumn: 'span 2' }}
-            />
+            <div className="w-full self-end">
+              <Input
+                label="Invoice Number"
+                value={formData.invoice_number}
+                style={{marginTop:'5px'}}
+                onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
+                required
+              />
+            </div>
           </div>
 
-          <div className="grid gap-4 items-center" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <div className="form-grid">
             <Input
               label="Issue Date"
               type="date"
@@ -236,8 +216,8 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
             
             <div className="flex flex-col gap-3">
               {items.map((item, index) => (
-                <div key={index} className="flex gap-2 items-center relative group w-full">
-                  <div className="flex-1">
+                <div key={index} className="line-item-grid w-full pb-4 border-b sm:border-0 sm:pb-0">
+                  <div>
                     <Input
                       label={index === 0 ? "Description" : ""}
                       value={item.description}
@@ -246,7 +226,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                       required
                     />
                   </div>
-                  <div style={{ width: '80px' }}>
+                  <div>
                     <Input
                       label={index === 0 ? "Qty" : ""}
                       type="number"
@@ -256,7 +236,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                       required
                     />
                   </div>
-                  <div style={{ width: '100px' }}>
+                  <div>
                     <Input
                       label={index === 0 ? "Price" : ""}
                       type="number"
@@ -266,13 +246,13 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                       required
                     />
                   </div>
-                  <div className={`font-medium text-right ${index === 0 ? 'mt-8' : ''}`} style={{ width: '80px' }}>
+                  <div className="font-medium flex items-center mb-2 sm:mb-3">
                     ${(Number(item.amount) || 0).toFixed(2)}
                   </div>
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    className={`header-icon-btn text-destructive ${index === 0 ? 'mt-8' : ''}`}
+                    className="header-icon-btn text-destructive mb-1"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -284,14 +264,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
             </div>
           </div>
 
-          <div className="border-t pt-4 flex flex-col items-end gap-3">
-            <div className="flex justify-between w-full sm:w-1/2 text-sm">
+          <div className="border-t pt-4 flex flex-col items-end gap-3 w-full">
+            <div className="flex justify-between w-full text-sm" style={{ maxWidth: '350px' }}>
               <span className="text-muted">Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between w-full sm:w-1/2 items-center text-sm">
+            <div className="flex justify-between w-full items-center text-sm" style={{ maxWidth: '350px' }}>
               <span className="text-muted">Tax Rate (%)</span>
-              <div style={{ width: '100px' }}>
+              <div style={{ width: '80px' }}>
                 <Input
                   label=""
                   type="number"
@@ -302,18 +282,18 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                 />
               </div>
             </div>
-            <div className="flex justify-between w-full sm:w-1/2 font-medium text-lg pt-2 border-t">
+            <div className="flex justify-between w-full font-medium text-lg pt-2 border-t" style={{ maxWidth: '350px' }}>
               <span>Total Amount</span>
               <span className="text-primary">${total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4 border-t">
-            <Button type="button" variant="ghost" onClick={onCancel} className="flex-1">Cancel</Button>
-            <Button type="submit" isLoading={loading} className="flex-1">{initialData ? 'Update Invoice' : 'Issue Invoice'}</Button>
+
+          <div className="flex gap-3 pt-6 border-t mt-4 justify-end" style={{ flexWrap: 'wrap-reverse' }}>
+            <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+            <Button type="submit" isLoading={loading}>{initialData ? 'Update Invoice' : 'Issue Invoice'}</Button>
           </div>
         </form>
-      )}
     </div>
   );
 };

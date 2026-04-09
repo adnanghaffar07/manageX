@@ -12,9 +12,13 @@ export interface Client {
   id: string; // uuid
   user_id: string; // references profiles(id)
   name: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  company_name?: string | null;
   email: string | null;
   phone: string | null;
   address: string | null;
+  custom_fields?: Record<string, string> | null;
   created_at: string;
 }
 
