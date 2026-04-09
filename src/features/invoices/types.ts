@@ -17,8 +17,16 @@ export interface Client {
   company_name?: string | null;
   email: string | null;
   phone: string | null;
-  address: string | null;
-  custom_fields?: Record<string, string> | null;
+  address?: string | null; // Kept for backwards compatibility
+  custom_fields?: Record<string, string> | null; // Kept for backwards compatibility
+  country?: string | null;
+  address_line_1?: string | null;
+  address_line_2?: string | null;
+  postal_code?: string | null;
+  city?: string | null;
+  website?: string | null;
+  invoice_currency?: string | null;
+  additional_info?: string | null;
   created_at: string;
 }
 

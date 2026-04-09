@@ -3,13 +3,9 @@ import { useAuth } from '../../../context/AuthContext';
 import { createClient } from '../api';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Client } from '../../invoices/types';
-
-interface CustomField {
-  key: string;
-  value: string;
-}
+import { COUNTRIES, CURRENCIES } from './constants';
 
 interface ClientFormModalProps {
   onClose: () => void;
@@ -22,40 +18,29 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    country: '',
     firstName: '',
     lastName: '',
     email: '',
+    phoneCountryCode: '+1',
     phone: '',
-    address: '',
     companyName: '',
+    addressLine1: '',
+    addressLine2: '',
+    postalCode: '',
+    city: '',
+    website: '',
+    invoiceCurrency: '',
+    additionalInfo: '',
   });
-
-  const [customFields, setCustomFields] = useState<CustomField[]>([]);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !loading) {
-        onClose();
-      }
+      if (event.key === 'Escape' && !loading) onClose();
     };
-
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [loading, onClose]);
-
-  const handleAddField = () => {
-    setCustomFields([...customFields, { key: '', value: '' }]);
-  };
-
-  const updateCustomField = (index: number, field: keyof CustomField, value: string) => {
-    const updated = [...customFields];
-    updated[index][field] = value;
-    setCustomFields(updated);
-  };
-
-  const removeCustomField = (index: number) => {
-    setCustomFields(customFields.filter((_, i) => i !== index));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,29 +51,30 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
       return;
     }
 
-    // Convert custom fields array to object
-    const customFieldsObj: Record<string, string> = {};
-    for (const field of customFields) {
-      if (field.key.trim() && field.value.trim()) {
-        customFieldsObj[field.key.trim()] = field.value.trim();
-      }
-    }
-
     setLoading(true);
     setError(null);
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+    const fullPhone = formData.phone.trim()
+      ? `${formData.phoneCountryCode} ${formData.phone.trim()}`
+      : null;
 
     try {
       const newClient = await createClient(user.id, {
         name: fullName,
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
+        first_name: formData.firstName.trim() || null,
+        last_name: formData.lastName.trim() || null,
         company_name: formData.companyName.trim() || null,
         email: formData.email.trim() || null,
-        phone: formData.phone.trim() || null,
-        address: formData.address.trim() || null,
-        custom_fields: Object.keys(customFieldsObj).length > 0 ? customFieldsObj : null,
+        phone: fullPhone,
+        country: formData.country.trim() || null,
+        address_line_1: formData.addressLine1.trim() || null,
+        address_line_2: formData.addressLine2.trim() || null,
+        postal_code: formData.postalCode.trim() || null,
+        city: formData.city.trim() || null,
+        website: formData.website.trim() || null,
+        invoice_currency: formData.invoiceCurrency.trim() || null,
+        additional_info: formData.additionalInfo.trim() || null,
       });
 
       onSuccess(newClient);
@@ -103,134 +89,202 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
   return (
     <div
       className="modal-overlay"
-      onClick={(event) => {
-        if (event.target === event.currentTarget && !loading) {
-          onClose();
-        }
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) onClose();
       }}
     >
-      <div className="modal-content">
-        <button 
-          onClick={onClose} 
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-muted hover:text-foreground transition-colors"
-          style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
-        >
-          <X size={20} />
-        </button>
-        <div className="mb-5 pr-8">
-          <h2 className="text-xl sm:text-2xl font-bold" style={{marginLeft:'44px'}}>Add New Client</h2>
-          <p className="text-sm text-muted mt-1"style={{marginTop:"7px"}}>Create a client quickly and attach them to this invoice.</p>
+      <div className="modal-content" style={{ maxWidth: '860px', width: '100%' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <h2 className="text-xl font-bold">New Client</h2>
+          <button
+            onClick={onClose}
+            style={{
+              width: '32px', height: '32px', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              borderRadius: '4px', background: 'transparent',
+              border: 'none', cursor: 'pointer',
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded-md text-sm" style={{ backgroundColor: 'rgba(var(--destructive), 0.1)', color: 'rgb(var(--destructive))', border: '1px solid rgba(var(--destructive), 0.2)' }}>
+          <div className="mb-4 p-3 rounded text-sm" style={{
+            backgroundColor: 'rgba(var(--destructive), 0.1)',
+            color: 'rgb(var(--destructive))',
+            border: '1px solid rgba(var(--destructive), 0.2)',
+          }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6 overflow-y-auto pr-1 max-h-[calc(92vh-7rem)]">
-          <div className="form-grid">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+          {/* Row 1: Company Name + Country */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Input
-              label="First Name"
+              label="Company name *"
+              value={formData.companyName}
+              onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label className="text-sm font-medium">Country</label>
+              <input
+                className="form-input"
+                list="country-list"
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                placeholder="Type or select..."
+                autoComplete="off"
+                style={{ height: '40px' }}
+              />
+              <datalist id="country-list">
+                {COUNTRIES.map(c => (
+                  <option key={`country-${c.code}`} value={c.name}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </datalist>
+            </div>
+          </div>
+
+          {/* Row 2: First Name + Last Name */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <Input
+              label="First name"
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
               required
             />
             <Input
-              label="Last Name"
+              label="Last name"
               value={formData.lastName}
               onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
               required
             />
           </div>
 
-          <Input
-            label="Company Name (Optional)"
-            value={formData.companyName}
-            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-          />
-
-          <div className="form-grid">
+          {/* Row 3: Email + Phone */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Input
-              label="Email Address"
+              label="Email address *"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label className="text-sm font-medium">Phone number</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <input
+                  className="form-input"
+                  list="phone-codes-list"
+                  value={formData.phoneCountryCode}
+                  onChange={(e) => setFormData({ ...formData, phoneCountryCode: e.target.value })}
+                  placeholder="+1"
+                  autoComplete="off"
+                  style={{ width: '100px', height: '40px', flexShrink: 0 }}
+                />
+                <datalist id="phone-codes-list">
+                  {COUNTRIES.map(c => (
+                    <option key={`dial-${c.code}`} value={c.dialCode}>
+                      {c.flag} {c.dialCode} ({c.name})
+                    </option>
+                  ))}
+                </datalist>
+                <input
+                  className="form-input"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="70 123 4567"
+                  style={{ flex: 1, height: '40px' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Row 4: Address Line 1 + Address Line 2 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Input
-              label="Phone Number"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              label="Address line 1"
+              value={formData.addressLine1}
+              onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+            />
+            <Input
+              label="Address line 2"
+              value={formData.addressLine2}
+              onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Address</label>
+          {/* Row 5: Postal Code + City */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <Input
+              label="Postal code"
+              value={formData.postalCode}
+              onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+            />
+            <Input
+              label="City"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            />
+          </div>
+
+          {/* Row 6: Website + Invoice Currency */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <Input
+              label="Web site"
+              type="url"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              placeholder="https://"
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label className="text-sm font-medium">Invoice currency</label>
+              <input
+                className="form-input"
+                list="currency-list"
+                value={formData.invoiceCurrency}
+                onChange={(e) => setFormData({ ...formData, invoiceCurrency: e.target.value })}
+                placeholder="Type or select..."
+                autoComplete="off"
+                style={{ height: '40px' }}
+              />
+              <datalist id="currency-list">
+                {CURRENCIES.map(c => (
+                  <option key={`cur-${c.code}`} value={c.code}>
+                    {c.code} - {c.name}
+                  </option>
+                ))}
+              </datalist>
+            </div>
+          </div>
+
+          {/* Row 7: Additional Info — full width */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label className="text-sm font-medium">Additional info</label>
             <textarea
               className="form-input"
-              style={{ minHeight: '80px', resize: 'vertical' }}
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              style={{ minHeight: '90px', resize: 'vertical' }}
+              value={formData.additionalInfo}
+              onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
+              placeholder="Any additional notes, VAT number, etc."
             />
           </div>
 
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h4 className="font-medium">Dynamic Fields</h4>
-                <p className="text-xs text-muted">Add custom information like VAT Number or specific notes.</p>
-              </div>
-              <Button type="button" variant="outline" onClick={handleAddField} className="text-sm h-8">
-                <Plus size={14} className="mr-1" /> Add Field
-              </Button>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              {customFields.map((field, index) => (
-                <div key={index} className="custom-field-grid w-full">
-                  <div>
-                    <Input
-                      label=""
-                      placeholder="Field Name (e.g. VAT No)"
-                      value={field.key}
-                      onChange={(e) => updateCustomField(index, 'key', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      label=""
-                      placeholder="Value"
-                      value={field.value}
-                      onChange={(e) => updateCustomField(index, 'value', e.target.value)}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeCustomField(index)}
-                    className="header-icon-btn text-destructive mb-1"
-                    style={{ minWidth: '40px', display: 'flex', justifyContent: 'center' }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-              {customFields.length === 0 && (
-                <p className="text-sm text-muted italic text-center py-4 bg-muted/10 rounded border border-dashed">
-                  No custom fields added.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4 border-t mt-2 justify-end" style={{ flexWrap: 'wrap' }}>
-            <Button type="button" variant="ghost" onClick={onClose}>
+          {/* Footer Buttons */}
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+            <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" isLoading={loading}>
-              Save Client
+              ✓ Set Recipient Data
             </Button>
           </div>
+
         </form>
       </div>
     </div>
