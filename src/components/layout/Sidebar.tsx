@@ -15,8 +15,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/invoices', icon: FileText, label: 'Invoices' },
-    // Placeholders for future features mentioned in prompt (Employee Management etc.)
-    { to: '/employees', icon: Users, label: 'Employees (Soon)' },
+    { to: '/employees', icon: Users, label: 'Employees' },
     { to: '/projects', icon: Briefcase, label: 'Projects (Soon)' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
