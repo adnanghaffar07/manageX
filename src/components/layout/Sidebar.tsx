@@ -17,7 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/invoices', icon: FileText, label: 'Invoices' },
     { to: '/employees', icon: Users, label: 'Employees' },
     // { to: '/documents', icon: Folder, label: 'Documents' },
-    { to: '/projects', icon: Briefcase, label: 'Projects (Soon)' },
+    { to: '/projects', icon: Briefcase, label: 'Projects' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 const closeButton = () => {

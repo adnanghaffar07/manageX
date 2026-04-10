@@ -101,7 +101,13 @@ body {
 .relative { position: relative; }
 .absolute { position: absolute; }
 .hidden { display: none !important; }
-@media (min-width: 768px) {
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
   .md\:flex { display: flex !important; }
   .md\:hidden { display: none !important; }
 }
