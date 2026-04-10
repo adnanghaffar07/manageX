@@ -16,7 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/invoices', icon: FileText, label: 'Invoices' },
     { to: '/employees', icon: Users, label: 'Employees' },
-    { to: '/documents', icon: Folder, label: 'Documents' },
+    // { to: '/documents', icon: Folder, label: 'Documents' },
     { to: '/projects', icon: Briefcase, label: 'Projects (Soon)' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
