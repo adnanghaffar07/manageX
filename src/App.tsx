@@ -6,7 +6,7 @@ import { useAuth } from './context/AuthContext';
 import { InvoiceDashboard } from './features/invoices/views/InvoiceDashboard';
 import { InvoiceFormPage } from './features/invoices/views/InvoiceFormPage';
 import { EmployeeDashboard } from './features/employees/views/EmployeeDashboard';
-import { DocumentDashboard } from './features/documents/views/DocumentDashboard';
+// import { DocumentDashboard } from './features/documents/views/DocumentDashboard';
 import { ProjectDashboard } from './features/projects/views/ProjectDashboard';
 
 // Placeholders for views we will create
