@@ -45,7 +45,7 @@ export const InvoiceDashboard: React.FC = () => {
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Invoices</h2>
-          <p className="text-muted text-sm mt-2">Manage your billing, client payments, and invoice status in one place.</p>
+          <p className="text-muted text-sm mt-2">Manage your billing, client payments, and invoices in one place.</p>
         </div>
         <Button onClick={handleAddNew} className="flex items-center sm:w-auto justify-center">
           <Plus size={16} className="mr-2" />
