@@ -110,6 +110,7 @@ export const AuthPage: React.FC = () => {
           </button>
         </div>
       </div>
+      
     </div>
   );
 };

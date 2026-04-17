@@ -509,3 +509,7 @@ tr:hover td {
     background-color: #0000ffa1;
     color: white;
 }
+.document-search-icon{
+  margin-left: 11px;
+  margin-top: 14px;
+}

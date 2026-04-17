@@ -83,7 +83,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
                 <div className="p-3 rounded-full bg-secondary text-primary">
                   <Upload size={24} />
                 </div>
-                <div className="text-center">
+                <div className="text-center" style={{ marginTop: '30px' }}>
                   <p className="font-medium">Click or drag to upload</p>
                   <p className="text-xs text-muted">PDF, PNG, JPG, DOC (Max 10MB)</p>
                 </div>
@@ -99,7 +99,8 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className={`px-3 py-2 text-xs rounded-lg border transition-all ${category === cat ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-card text-muted-foreground border-border hover:border-primary/50'}`}
+                  className={`btn ${category === cat ? 'btn-primary' : 'btn-outline'}`}
+                  style={{ fontSize: '0.875rem', padding: '0.5rem', height: 'auto' }}
                 >
                   {cat}
                 </button>
@@ -107,7 +108,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4" style={{ marginTop: '20px' }}>
             <Button variant="ghost" onClick={onClose} className="flex-1" type="button" disabled={isUploading}>
               Cancel
             </Button>
