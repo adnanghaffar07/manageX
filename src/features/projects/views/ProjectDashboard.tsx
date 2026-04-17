@@ -61,31 +61,31 @@ export const ProjectDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="card flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-primary/10 text-primary">
-            <Briefcase size={24} />
+        <div className="stat-card primary">
+          <div className="stat-icon-wrapper primary">
+            <Briefcase size={28} />
           </div>
           <div>
-            <p className="text-xs text-muted font-medium uppercase tracking-wider">Active Projects</p>
-            <p className="text-xl font-bold">{activeProjects}</p>
+            <p className="text-sm text-muted font-medium mb-1">Active Projects</p>
+            <p className="text-3xl font-bold tracking-tight">{activeProjects}</p>
           </div>
         </div>
-        <div className="card flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-orange-500/10 text-orange-500">
-            <Loader2 size={24} className="animate-spin-slow" />
+        <div className="stat-card warning">
+          <div className="stat-icon-wrapper warning">
+            <Loader2 size={28} className="animate-spin-slow" />
           </div>
           <div>
-            <p className="text-xs text-muted font-medium uppercase tracking-wider">Completed</p>
-            <p className="text-xl font-bold">{completedProjects}</p>
+            <p className="text-sm text-muted font-medium mb-1">Completed</p>
+            <p className="text-3xl font-bold tracking-tight">{completedProjects}</p>
           </div>
         </div>
-        <div className="card flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-green-500/10 text-green-500">
-             <span className="text-xl font-bold">$</span>
+        <div className="stat-card success">
+          <div className="stat-icon-wrapper success">
+             <span className="text-2xl font-bold leading-none">$</span>
           </div>
           <div>
-            <p className="text-xs text-muted font-medium uppercase tracking-wider">Total Value</p>
-            <p className="text-xl font-bold">${totalBudget.toLocaleString()}</p>
+            <p className="text-sm text-muted font-medium mb-1">Total Value</p>
+            <p className="text-3xl font-bold tracking-tight">${totalBudget.toLocaleString()}</p>
           </div>
         </div>
       </div>

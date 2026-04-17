@@ -137,7 +137,7 @@ export const DocumentDashboard: React.FC = () => {
               padding: '0.75rem 1.5rem'
             }}
           >
-            <Plus size={18} strokeWidth={3} />
+             <Plus size={18} strokeWidth={3} />
             New Upload
           </Button>
         </div>

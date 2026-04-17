@@ -45,41 +45,41 @@ export const ProjectList: React.FC<ProjectListProps> = ({ projects, onEdit, onRe
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {projects.map((project) => (
-        <div key={project.id} className="card hover:shadow-md transition-shadow flex flex-col gap-4">
+        <div key={project.id} className="project-card">
           <div className="flex justify-between items-start">
             <div>
-              <span className={`badge ${statusColors[project.status]} mb-2`}>
+              <span className={`badge ${statusColors[project.status]} mb-3`}>
                 {project.status.replace('_', ' ').charAt(0).toUpperCase() + project.status.slice(1).replace('_', ' ')}
               </span>
-              <h3 className="text-lg font-bold leading-tight">{project.name}</h3>
-              <p className="text-sm text-muted mt-1">{project.clients?.company_name || project.clients?.name || 'Unknown Client'}</p>
+              <h3 className="text-xl font-bold leading-tight tracking-tight">{project.name}</h3>
+              <p className="text-sm text-muted mt-1 font-medium">{project.clients?.company_name || project.clients?.name || 'Unknown Client'}</p>
             </div>
-            <div className="flex gap-1">
-              <button onClick={() => onEdit(project)} className="header-icon-btn" title="Edit">
+            <div className="flex gap-1 bg-secondary rounded-lg p-1">
+              <button onClick={() => onEdit(project)} className="header-icon-btn p-1.5" title="Edit">
                 <Edit2 size={16} />
               </button>
-              <button onClick={() => handleDelete(project.id)} className="header-icon-btn text-destructive" title="Delete">
+              <button onClick={() => handleDelete(project.id)} className="header-icon-btn p-1.5 text-destructive" title="Delete">
                 <Trash2 size={16} />
               </button>
             </div>
           </div>
 
-          <p className="text-sm text-muted line-clamp-3 flex-1">
+          <p className="text-sm text-muted line-clamp-3 mb-2 flex-1 leading-relaxed">
             {project.description || 'No description provided.'}
           </p>
 
-          <div className="pt-4 border-t grid grid-cols-2 gap-4">
+          <div className="pt-4 border-t mt-auto grid grid-cols-2 gap-y-3 gap-x-4">
             <div className="flex items-center gap-2 text-sm text-muted">
-              <Calendar size={14} />
+              <Calendar size={16} className="text-primary/70" />
               <span>{project.end_date ? new Date(project.end_date).toLocaleDateString() : 'No deadline'}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm font-medium text-primary justify-end">
-              <DollarSign size={14} />
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary justify-end">
+              <DollarSign size={16} />
               <span>{project.budget.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Clock size={14} />
-              <span className={`font-medium ${priorityColors[project.priority]}`}>
+            <div className="flex items-center gap-2 text-sm text-muted col-span-2">
+              <Clock size={16} className="text-primary/70" />
+              Priority: <span className={`font-semibold ${priorityColors[project.priority]}`}>
                 {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
               </span>
             </div>
