@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, X, LogOut, Users, Briefcase, Folder } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, X, LogOut, Users, Briefcase, Folder, Banknote } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
 
@@ -18,6 +18,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/employees', icon: Users, label: 'Employees' },
     { to: '/documents', icon: Folder, label: 'Documents' },
     { to: '/projects', icon: Briefcase, label: 'Projects' },
+    { to: '/salary-stubs', icon: Banknote, label: 'Salary Stubs' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 const closeButton = () => {
