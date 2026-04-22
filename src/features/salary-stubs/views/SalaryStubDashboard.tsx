@@ -5,6 +5,7 @@ import { SalaryStubList } from '../components/SalaryStubList';
 import { SalaryStubFormModal } from '../components/SalaryStubFormModal';
 import { Button } from '../../../components/common/Button';
 import { Plus, Loader2 } from 'lucide-react';
+import { useToast } from '../../../context/ToastContext';
 
 export const SalaryStubDashboard: React.FC = () => {
   const [stubs, setStubs] = useState<SalaryStub[]>([]);
@@ -38,8 +39,11 @@ export const SalaryStubDashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const { addToast } = useToast();
+
   const handleModalSuccess = () => {
     setIsModalOpen(false);
+    addToast('Salary stub saved successfully', 'success');
     fetchStubs();
   };
 

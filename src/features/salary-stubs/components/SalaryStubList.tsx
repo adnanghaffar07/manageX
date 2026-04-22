@@ -2,6 +2,7 @@ import React from 'react';
 import type { SalaryStub } from '../types';
 import { Edit2, Trash2 } from 'lucide-react';
 import { deleteSalaryStub } from '../api';
+import { useToast } from '../../../context/ToastContext';
 
 interface SalaryStubListProps {
   stubs: SalaryStub[];
@@ -10,14 +11,17 @@ interface SalaryStubListProps {
 }
 
 export const SalaryStubList: React.FC<SalaryStubListProps> = ({ stubs, onEdit, onRefresh }) => {
+  const { addToast } = useToast();
+
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this salary stub?')) return;
     try {
       await deleteSalaryStub(id);
+      addToast('Salary stub deleted successfully', 'success');
       onRefresh();
     } catch (error) {
       console.error('Error deleting salary stub:', error);
-      alert('Failed to delete salary stub');
+      addToast('Failed to delete salary stub', 'error');
     }
   };
 
@@ -30,7 +34,7 @@ export const SalaryStubList: React.FC<SalaryStubListProps> = ({ stubs, onEdit, o
   }
 
   return (
-    <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+    <div className="table-container">
       <table>
         <thead>
           <tr>

@@ -38,7 +38,7 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onEdit, onRe
   }
 
   return (
-    <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+    <div className="table-container">
       <table>
         <thead>
           <tr>

@@ -48,26 +48,27 @@ export const InvoiceFormPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center p-24 w-full">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <Loader2 className="animate-spin text-primary" style={{ width: '40px', height: '40px' }} />
       </div>
     );
   }
 
   return (
-    <section className="w-full min-h-[calc(100vh-6rem)] px-3 sm:px-5 lg:px-8 py-4 sm:py-6">
-      <div className="mx-auto w-full max-w-6xl rounded-2xl border bg-[var(--surface-color)] shadow-sm p-4 sm:p-6 lg:p-8">
+    <section className="w-full flex flex-col p-4" style={{ minHeight: 'calc(100vh - 6rem)' }}>
       <button
         onClick={handleCancel}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors invoice-btn"
+        className="mb-6 btn btn-secondary flex items-center justify-center gap-2 rounded-full"
+        style={{ alignSelf: 'flex-start', width: 'auto' }}
       >
-        <ArrowLeft size={16} /> Back to Invoice
+        <ArrowLeft size={16} /> Back to Invoices
       </button>
 
-      <InvoiceForm 
-        initialData={invoice} 
-        onSuccess={handleSuccess} 
-        onCancel={handleCancel} 
-      />
+      <div className="w-full mx-auto flex-1" style={{ maxWidth: '1400px' }}>
+        <InvoiceForm 
+          initialData={invoice} 
+          onSuccess={handleSuccess} 
+          onCancel={handleCancel} 
+        />
       </div>
     </section>
   );

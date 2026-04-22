@@ -2,6 +2,7 @@ import React from 'react';
 import type { Employee } from '../types';
 import { Edit2, Trash2 } from 'lucide-react';
 import { deleteEmployee } from '../api';
+import { useToast } from '../../../context/ToastContext';
 
 interface EmployeeListProps {
   employees: Employee[];
@@ -10,14 +11,17 @@ interface EmployeeListProps {
 }
 
 export const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onEdit, onRefresh }) => {
+  const { addToast } = useToast();
+
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this employee?')) return;
     try {
       await deleteEmployee(id);
+      addToast('Employee deleted successfully', 'success');
       onRefresh();
     } catch (error) {
       console.error('Error deleting employee:', error);
-      alert('Failed to delete employee');
+      addToast('Failed to delete employee', 'error');
     }
   };
 
@@ -37,7 +41,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onEdit, o
   }
 
   return (
-    <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+    <div className="table-container">
       <table>
         <thead>
           <tr>

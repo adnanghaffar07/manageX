@@ -5,6 +5,7 @@ import { EmployeeList } from '../components/EmployeeList';
 import { EmployeeFormModal } from '../components/EmployeeFormModal';
 import { Button } from '../../../components/common/Button';
 import { Plus, Loader2 } from 'lucide-react';
+import { useToast } from '../../../context/ToastContext';
 
 export const EmployeeDashboard: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -38,8 +39,11 @@ export const EmployeeDashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const { addToast } = useToast();
+
   const handleModalSuccess = () => {
     setIsModalOpen(false);
+    addToast('Employee saved successfully', 'success');
     fetchEmployees();
   };
 

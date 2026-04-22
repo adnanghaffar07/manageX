@@ -21,28 +21,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/salary-stubs', icon: Banknote, label: 'Salary Stubs' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
-const closeButton = () => {
-  setIsOpen(false);
-}
+
+  const closeButton = () => {
+    setIsOpen(false);
+  }
+
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 md:hidden"
-          style={{ backgroundColor: 'rgba(var(--background), 0.8)', backdropFilter: 'blur(4px)' }}
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar sidebar */}
       <aside className={`sidebar ${!isOpen ? 'closed' : ''}`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-border/40">
-          <div className="flex items-center gap-2" style={{marginTop:"20px",marginBottom:'17px'}}>
-            <div className="flex items-center justify-center p-2 rounded-lg" style={{ backgroundColor: 'var(--accent)' }}>
-              <LayoutDashboard size={20} className="text-primary" />
+        <div className="h-16 flex items-center justify-between px-6 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center p-2 rounded-lg" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+              <LayoutDashboard size={20} />
             </div>
-            <span className="text-xl font-bold text-primary">
+            <span className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
               ManageX
             </span>
           </div>
@@ -51,23 +53,23 @@ const closeButton = () => {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               onClick={() => setIsOpen(false)}
-              className={({ isActive }) => `nav-item gap-3 mt-2 ${isActive ? 'active' : ''}`}
+              className={({ isActive }) => `nav-item gap-3 ${isActive ? 'active' : ''}`}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon size={18} />
               <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-4 border-t pb-6">
-          <Button variant="ghost" className="w-full justify-start text-muted text-destructive" onClick={signOut}>
-            <LogOut size={20} className="mr-3" />
+        <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <Button variant="ghost" className="w-full justify-start text-destructive" onClick={signOut}>
+            <LogOut size={18} className="mr-3" />
             Sign Out
           </Button>
         </div>

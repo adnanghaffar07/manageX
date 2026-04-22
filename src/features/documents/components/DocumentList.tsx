@@ -63,8 +63,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
   }
 
   return (
-    <div className="card p-0 overflow-hidden">
-      <div className="overflow-x-auto">
+    <div className="table-container">
         <table>
           <thead>
             <tr>
@@ -128,7 +127,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
             ))}
           </tbody>
         </table>
-      </div>
     </div>
   );
 };
