@@ -3,9 +3,9 @@ import { supabase } from '../../../config/supabase';
 import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import type { Invoice, Client, InvoiceItem } from '../types';
+import type { Invoice, Client, InvoiceItem, Profile } from '../types';
 import { fetchClients } from '../../clients/api';
-import { Plus, Trash2, Download, Mail, CreditCard, Check } from 'lucide-react';
+import { Plus, Trash2, Download, Mail, CreditCard, Check, Image as ImageIcon, Upload } from 'lucide-react';
 import { ClientFormModal } from '../../clients/components/ClientFormModal';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -33,13 +33,18 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
     status: initialData?.status || 'draft',
     tax_rate: initialData?.tax_rate || 0,
     notes: initialData?.notes || 'Service per current month',
+    bank_details: initialData?.bank_details || '',
+    logo_url: initialData?.logo_url || '',
   });
+
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   const [items, setItems] = useState<Partial<InvoiceItem>[]>([]);
 
   useEffect(() => {
     if (user) {
       loadClients();
+      loadProfile();
       if (initialData?.id) {
         loadInvoiceItems(initialData.id);
       } else {
@@ -47,6 +52,16 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
       }
     }
   }, [user, initialData]);
+
+  const loadProfile = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (data) setProfile(data);
+    } catch (e) {
+      console.error('Error loading profile:', e);
+    }
+  };
 
   const loadClients = async () => {
     if (!user) return;
@@ -81,6 +96,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
   const total = useMemo(() => subtotal + taxAmount, [subtotal, taxAmount]);
 
   const selectedClient = useMemo(() => clients.find(c => c.id === formData.client_id), [clients, formData.client_id]);
+  const currency = selectedClient?.invoice_currency || 'USD';
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -102,7 +118,9 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
       subtotal,
       tax_rate: Number(formData.tax_rate),
       total,
-      notes: formData.notes
+      notes: formData.notes,
+      bank_details: formData.bank_details,
+      logo_url: formData.logo_url
     };
 
     try {
@@ -136,6 +154,36 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
     } catch (error: any) {
       console.error('Error saving invoice:', error);
       addToast('Failed to save invoice.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    
+    try {
+      setLoading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Math.random()}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+        
+      setFormData({ ...formData, logo_url: publicUrl });
+      addToast('Logo uploaded successfully', 'success');
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      addToast('Failed to upload logo', 'error');
     } finally {
       setLoading(false);
     }
@@ -181,8 +229,24 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
         {/* LEFT PANE: FORM */}
         <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div>
-            <h2 className="text-2xl font-bold">Invoice Details</h2>
-            
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Invoice Details</h2>
+              <div className="relative">
+                <input
+                  type="file"
+                  id="logo-upload"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+                <label 
+                  htmlFor="logo-upload" 
+                  className="btn btn-outline btn-sm gap-2 h-9 text-xs rounded-full cursor-pointer"
+                >
+                  <Upload size={14} /> Choose Logo
+                </label>
+              </div>
+            </div>
             <div className="flex flex-col gap-4 mt-4">
               <div className="flex flex-col gap-1 w-full">
                 <div className="flex justify-between items-center mb-1">
@@ -232,6 +296,17 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                   onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
                 />
               </div>
+
+              <div className="flex flex-col gap-1 w-full">
+                <label className="text-sm font-medium">Bank Details</label>
+                <textarea
+                  value={formData.bank_details}
+                  onChange={(e) => setFormData({ ...formData, bank_details: e.target.value })}
+                  placeholder="Bank name: Meezan&#10;Account Number: 0123456789"
+                  className="form-input min-h-[100px] py-2"
+                  style={{ height: 'auto' }}
+                />
+              </div>
             </div>
           </div>
 
@@ -264,12 +339,12 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                     required
                   />
                   <div className="relative">
-                    <span 
+                    {/* <span 
                       className="absolute text-muted text-xs" 
                       style={{ left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }}
                     >
-                      $
-                    </span>
+                      {currency === 'USD' ? '$' : currency}
+                    </span> */}
                     <input
                       type="number"
                       step="0.01"
@@ -303,7 +378,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               <div className="mt-6 pt-6 border-t flex flex-col gap-3">
                 <div className="flex justify-between w-full text-sm">
                   <span className="text-muted">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{currency} {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between w-full items-center text-sm">
                   <span className="text-muted">Tax Rate (%)</span>
@@ -321,7 +396,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                 </div>
                 <div className="flex justify-between w-full font-medium text-lg pt-2 border-t">
                   <span>Total Amount</span>
-                  <span className="text-primary">${total.toFixed(2)}</span>
+                  <span className="text-primary">{currency} {total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -367,30 +442,62 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               className="card shadow-md flex flex-col"
               style={{ width: '100%', maxWidth: '800px', minHeight: '1056px', aspectRatio: '1/1.414', fontFamily: 'Inter, sans-serif', backgroundColor: '#ffffff', color: '#0f172a', padding: '3rem' }}
             >
-              <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#0f172a', marginBottom: '3rem' }}>
-                {formData.invoice_number}
-              </h1>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '2rem', columnGap: '3rem', marginBottom: '3rem', fontSize: '0.875rem' }}>
-                <div>
-                  <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.25rem' }}>Due date</p>
-                  <p style={{ color: '#0f172a', fontWeight: 600 }}>{new Date(formData.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              {/* Header section with Logo and Invoice Meta */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}>
+                <div style={{ width: '240px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                   {formData.logo_url ? (
+                     <img 
+                       src={formData.logo_url} 
+                       alt="Logo" 
+                       style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+                     />
+                   ) : (
+                     <div style={{ width: '100%', height: '100%', border: '2px dashed #e2e8f0', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', gap: '0.75rem' }}>
+                       <ImageIcon size={24} />
+                       <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Logo placeholder</span>
+                     </div>
+                   )}
                 </div>
-                <div>
-                  <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.25rem' }}>Subject</p>
-                  <p style={{ color: '#0f172a', fontWeight: 600 }}>{formData.notes || 'N/A'}</p>
-                </div>
-                <div>
-                  <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.25rem' }}>Billed to</p>
-                  <p style={{ color: '#0f172a', fontWeight: 600 }}>{selectedClient?.name || 'Client Name'}</p>
-                  <p style={{ color: '#64748b', marginTop: '0.25rem' }}>{selectedClient?.email}</p>
-                  {selectedClient?.address && <p style={{ color: '#64748b' }}>{selectedClient.address}</p>}
-                </div>
-                <div>
-                  <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.25rem' }}>Currency</p>
-                  <p style={{ color: '#0f172a', fontWeight: 600 }}>USD - US Dollar</p>
+                
+                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#64748b' }}>Invoice</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>{formData.invoice_number}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#64748b' }}>Issue date</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{formData.issue_date}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#64748b' }}>Due date</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{formData.due_date}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* From and To sections */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ border: '2px dashed #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>From</p>
+                  <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{profile?.full_name || profile?.company_name || user?.email?.split('@')[0] || 'Sender Name'}</p>
+                  <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{user?.email}</p>
+                </div>
+                <div style={{ border: '2px dashed #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>To</p>
+                  <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{selectedClient?.name || 'Recipient name'}</p>
+                  <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{selectedClient?.email || 'Recipient contact details'}</p>
+                </div>
+              </div>
+
+              {/* Bank Details section */}
+              {formData.bank_details && (
+                <div style={{ border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem', marginBottom: '3rem', backgroundColor: '#f8fafc' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>Bank Details</p>
+                  <div style={{ color: '#475569', fontSize: '0.875rem', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                    {formData.bank_details}
+                  </div>
+                </div>
+              )}
 
               <div style={{ marginBottom: '2rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1.5fr 1.5fr', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -409,8 +516,8 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                       {item.description}
                     </div>
                     <div style={{ textAlign: 'center' }}>{item.quantity}</div>
-                    <div style={{ textAlign: 'right' }}>{(Number(item.unit_price) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})} USD</div>
-                    <div style={{ textAlign: 'right' }}>{(Number(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})} USD</div>
+                    <div style={{ textAlign: 'right' }}>{(Number(item.unit_price) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</div>
+                    <div style={{ textAlign: 'right' }}>{(Number(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</div>
                   </div>
                 ))}
               </div>
@@ -419,21 +526,21 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '250px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#475569' }}>
                     <span>Subtotal</span>
-                    <span>{subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})} USD</span>
+                    <span>{subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</span>
                   </div>
                   {formData.tax_rate > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#475569' }}>
                       <span>Tax {formData.tax_rate}%</span>
-                      <span>{taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2})} USD</span>
+                      <span>{taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</span>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0', color: '#0f172a' }}>
                     <span>Total</span>
-                    <span>{total.toLocaleString(undefined, {minimumFractionDigits: 2})} USD</span>
+                    <span>{total.toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: '0.25rem', color: '#0f172a' }}>
                     <span>Amount due</span>
-                    <span>{total.toLocaleString(undefined, {minimumFractionDigits: 2})} USD</span>
+                    <span>{total.toLocaleString(undefined, {minimumFractionDigits: 2})} {currency}</span>
                   </div>
                 </div>
               </div>

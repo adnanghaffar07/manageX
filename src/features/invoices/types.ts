@@ -42,6 +42,8 @@ export interface Invoice {
   tax_rate: number;
   total: number;
   notes: string | null;
+  bank_details: string | null;
+  logo_url: string | null;
   created_at: string;
   
   // Virtual field for join operations
