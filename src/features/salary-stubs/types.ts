@@ -6,6 +6,8 @@ export interface SalaryStub {
   allowances: number;
   deductions: number;
   net_salary: number;
+  worked_days: number;
+  total_days: number;
   paid_on: string;
   created_at: string;
   // joined fields
@@ -21,5 +23,7 @@ export interface SalaryStubFormData {
   basic_salary: string;
   allowances: string;
   deductions: string;
+  worked_days: string;
+  total_days: string;
   paid_on: string;
 }

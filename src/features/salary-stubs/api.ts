@@ -26,7 +26,12 @@ export const createSalaryStub = async (stubData: SalaryStubFormData): Promise<Sa
   const basic_salary = parseFloat(stubData.basic_salary) || 0;
   const allowances = parseFloat(stubData.allowances) || 0;
   const deductions = parseFloat(stubData.deductions) || 0;
-  const net_salary = basic_salary + allowances - deductions;
+  const total_days = parseInt(stubData.total_days) || 30;
+  const worked_days = parseInt(stubData.worked_days) || 30;
+  
+  // Pro-rated basic salary based on worked days
+  const prorated_basic = (basic_salary / total_days) * worked_days;
+  const net_salary = prorated_basic + allowances - deductions;
 
   const payload = {
     employee_id: stubData.employee_id,
@@ -35,6 +40,8 @@ export const createSalaryStub = async (stubData: SalaryStubFormData): Promise<Sa
     allowances,
     deductions,
     net_salary,
+    worked_days,
+    total_days,
     paid_on: stubData.paid_on || null,
   };
 

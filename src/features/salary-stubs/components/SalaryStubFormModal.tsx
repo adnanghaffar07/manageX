@@ -27,6 +27,8 @@ export const SalaryStubFormModal: React.FC<SalaryStubFormModalProps> = ({ onClos
     basic_salary: stubToEdit?.basic_salary?.toString() || '',
     allowances: stubToEdit?.allowances?.toString() || '0',
     deductions: stubToEdit?.deductions?.toString() || '0',
+    worked_days: stubToEdit?.worked_days?.toString() || '30',
+    total_days: stubToEdit?.total_days?.toString() || '30',
     paid_on: stubToEdit?.paid_on || '',
   });
 
@@ -79,8 +81,13 @@ export const SalaryStubFormModal: React.FC<SalaryStubFormModalProps> = ({ onClos
     }
   };
 
+  const basic = parseFloat(formData.basic_salary) || 0;
+  const totalDays = parseInt(formData.total_days) || 30;
+  const workedDays = parseInt(formData.worked_days) || 0;
+  const proratedBasic = (basic / totalDays) * workedDays;
+
   const calculatedNet = 
-    (parseFloat(formData.basic_salary) || 0) + 
+    proratedBasic + 
     (parseFloat(formData.allowances) || 0) - 
     (parseFloat(formData.deductions) || 0);
 
@@ -180,6 +187,20 @@ export const SalaryStubFormModal: React.FC<SalaryStubFormModalProps> = ({ onClos
                 step="0.01"
                 value={formData.deductions}
                 onChange={(e) => setFormData({ ...formData, deductions: e.target.value })}
+              />
+              <Input
+                label="Days Worked *"
+                type="number"
+                value={formData.worked_days}
+                onChange={(e) => setFormData({ ...formData, worked_days: e.target.value })}
+                required
+              />
+              <Input
+                label="Total Days (Base) *"
+                type="number"
+                value={formData.total_days}
+                onChange={(e) => setFormData({ ...formData, total_days: e.target.value })}
+                required
               />
             </div>
 

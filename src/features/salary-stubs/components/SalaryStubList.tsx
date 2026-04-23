@@ -1,16 +1,17 @@
 import React from 'react';
 import type { SalaryStub } from '../types';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Eye } from 'lucide-react';
 import { deleteSalaryStub } from '../api';
 import { useToast } from '../../../context/ToastContext';
 
 interface SalaryStubListProps {
   stubs: SalaryStub[];
   onEdit: (stub: SalaryStub) => void;
+  onView: (stub: SalaryStub) => void;
   onRefresh: () => void;
 }
 
-export const SalaryStubList: React.FC<SalaryStubListProps> = ({ stubs, onEdit, onRefresh }) => {
+export const SalaryStubList: React.FC<SalaryStubListProps> = ({ stubs, onEdit, onView, onRefresh }) => {
   const { addToast } = useToast();
 
   const handleDelete = async (id: string) => {
@@ -77,6 +78,13 @@ export const SalaryStubList: React.FC<SalaryStubListProps> = ({ stubs, onEdit, o
                   title="Edit"
                 >
                   <Edit2 size={16} />
+                </button>
+                <button
+                  onClick={() => onView(stub)}
+                  className="header-icon-btn"
+                  title="View Slip"
+                >
+                  <Eye size={16} />
                 </button>
                 <button
                   onClick={() => handleDelete(stub.id)}

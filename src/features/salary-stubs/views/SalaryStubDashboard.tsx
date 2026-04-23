@@ -3,6 +3,7 @@ import { getSalaryStubs } from '../api';
 import type { SalaryStub } from '../types';
 import { SalaryStubList } from '../components/SalaryStubList';
 import { SalaryStubFormModal } from '../components/SalaryStubFormModal';
+import { SalarySlipModal } from '../components/SalarySlipModal';
 import { Button } from '../../../components/common/Button';
 import { Plus, Loader2 } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
@@ -11,7 +12,9 @@ export const SalaryStubDashboard: React.FC = () => {
   const [stubs, setStubs] = useState<SalaryStub[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
   const [stubToEdit, setStubToEdit] = useState<SalaryStub | undefined>(undefined);
+  const [stubToView, setStubToView] = useState<SalaryStub | undefined>(undefined);
 
   const fetchStubs = async () => {
     setLoading(true);
@@ -37,6 +40,11 @@ export const SalaryStubDashboard: React.FC = () => {
   const handleAddNew = () => {
     setStubToEdit(undefined);
     setIsModalOpen(true);
+  };
+
+  const handleViewSlip = (stub: SalaryStub) => {
+    setStubToView(stub);
+    setIsSlipModalOpen(true);
   };
 
   const { addToast } = useToast();
@@ -67,7 +75,12 @@ export const SalaryStubDashboard: React.FC = () => {
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : (
-            <SalaryStubList stubs={stubs} onEdit={handleEdit} onRefresh={fetchStubs} />
+            <SalaryStubList 
+              stubs={stubs} 
+              onEdit={handleEdit} 
+              onView={handleViewSlip}
+              onRefresh={fetchStubs} 
+            />
           )}
         </div>
       </div>
@@ -77,6 +90,13 @@ export const SalaryStubDashboard: React.FC = () => {
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleModalSuccess}
           stubToEdit={stubToEdit}
+        />
+      )}
+
+      {isSlipModalOpen && stubToView && (
+        <SalarySlipModal
+          stub={stubToView}
+          onClose={() => setIsSlipModalOpen(false)}
         />
       )}
     </div>
