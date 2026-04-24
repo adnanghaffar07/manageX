@@ -133,17 +133,19 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({ onClose, o
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Input
-              label="Salary"
+              label="Salary *"
               type="number"
               step="0.01"
               value={formData.salary}
               onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+              required
             />
             <Input
-              label="Joining Date"
+              label="Joining Date *"
               type="date"
               value={formData.joining_date}
               onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })}
+              required
             />
           </div>
 

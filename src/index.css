@@ -353,7 +353,6 @@ label {
   min-width: 0;
   transition: all 0.3s ease;
   position: relative;
-  z-index: 0;
 }
 @media (min-width: 768px) {
   .main-content { margin-left: 16rem; }
@@ -562,3 +561,31 @@ tr:hover td { background-color: var(--background); }
 .dark .stat-icon-wrapper.primary { background-color: rgba(99, 102, 241, 0.15); color: #818cf8; }
 .dark .stat-icon-wrapper.warning { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .dark .stat-icon-wrapper.success { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+/* Invoice Preview Pane Responsive Layout */
+.invoice-preview-pane {
+  flex: 1.2 1 500px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  height: calc(100vh - 8rem);
+}
+
+@media (min-width: 1024px) {
+  .invoice-preview-pane {
+    position: sticky;
+    top: 1.5rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .invoice-preview-pane {
+    height: 800px; /* fixed height for internal scrolling on smaller screens */
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}

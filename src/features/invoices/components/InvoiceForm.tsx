@@ -224,7 +224,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
       )}
 
       {/* Strict 2-column flex layout for responsive screens, wraps on mobile */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', height: '100%' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
         
         {/* LEFT PANE: FORM */}
         <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -416,7 +416,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
         </div>
 
         {/* RIGHT PANE: PREVIEW */}
-        <div style={{ flex: '1.2 1 500px', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 8rem)', position: 'sticky', top: '1.5rem' }} className="bg-secondary border rounded-2xl p-6 overflow-hidden">
+        <div className="invoice-preview-pane">
           <div className="flex items-center justify-between mb-6" style={{ flexWrap: 'nowrap' }}>
             <div className="flex items-center gap-2">
               <h3 className="text-xl font-bold">Preview</h3>

@@ -22,6 +22,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
       setFile(e.target.files[0]);
     }
   };
+  
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
