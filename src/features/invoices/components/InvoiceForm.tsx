@@ -197,9 +197,11 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
       await new Promise(resolve => setTimeout(resolve, 100));
       const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
+      
+      const pdfWidth = 210; // A4 width in mm
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
+      
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Invoice_${formData.invoice_number}.pdf`);
       addToast('PDF downloaded successfully', 'success');
@@ -440,7 +442,17 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
             <div 
               id="invoice-preview-capture" 
               className="card shadow-md flex flex-col"
-              style={{ width: '100%', maxWidth: '800px', minHeight: '1056px', aspectRatio: '1/1.414', fontFamily: 'Inter, sans-serif', backgroundColor: '#ffffff', color: '#0f172a', padding: '3rem' }}
+              style={{ 
+                width: '100%', 
+                maxWidth: '800px', 
+                minHeight: 'auto', 
+                height: 'fit-content',
+                fontFamily: 'Inter, sans-serif', 
+                backgroundColor: '#ffffff', 
+                color: '#0f172a', 
+                padding: '3rem',
+                boxSizing: 'border-box'
+              }}
             >
               {/* Header section with Logo and Invoice Meta */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}>

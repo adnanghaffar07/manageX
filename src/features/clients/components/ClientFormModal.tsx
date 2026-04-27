@@ -232,6 +232,8 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({ onClose, onSuc
               onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             />
           </div>
+          
+
 
           {/* Row 6: Website + Invoice Currency */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

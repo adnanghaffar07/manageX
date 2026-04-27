@@ -588,4 +588,31 @@ tr:hover td { background-color: var(--background); }
     width: 100%;
     flex: 1 1 100%;
   }
-}
+}
+
+/* Auth Page Styles */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--background) 0%, var(--accent) 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--card);
+  padding: 2.5rem;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-xl), 0 0 0 1px var(--border);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
+}
+
