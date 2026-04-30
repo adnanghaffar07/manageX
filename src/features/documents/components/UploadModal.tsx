@@ -12,6 +12,7 @@ interface UploadModalProps {
 export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) => {
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState<DocumentCategory>('General');
+  const [isSigned, setIsSigned] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
     setError(null);
 
     try {
-      await uploadDocument(file, category);
+      await uploadDocument(file, category, isSigned);
       onSuccess();
     } catch (err: any) {
       console.error('Upload failed:', err);
@@ -107,6 +108,19 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSuccess }) 
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="isSigned" 
+              checked={isSigned} 
+              onChange={(e) => setIsSigned(e.target.checked)}
+              style={{ width: '1rem', height: '1rem', cursor: 'pointer', accentColor: 'var(--primary)' }}
+            />
+            <label htmlFor="isSigned" className="text-sm font-medium cursor-pointer" style={{ userSelect: 'none' }}>
+              This is a signed document
+            </label>
           </div>
 
           <div className="flex gap-3 pt-4" style={{ marginTop: '20px' }}>

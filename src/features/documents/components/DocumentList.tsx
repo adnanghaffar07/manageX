@@ -1,7 +1,8 @@
-import React from 'react';
-import { FileText, Download, Trash2, ExternalLink, Image as ImageIcon, File } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Download, Trash2, ExternalLink, Image as ImageIcon, File, PenTool } from 'lucide-react';
 import type { Document } from '../types';
 import { deleteDocument, getDocumentDownloadUrl } from '../api';
+import { SignDocumentModal } from './SignDocumentModal';
 
 interface DocumentListProps {
   documents: Document[];
@@ -9,6 +10,8 @@ interface DocumentListProps {
 }
 
 export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh }) => {
+  const [signingDocument, setSigningDocument] = useState<Document | null>(null);
+
   const handleDelete = async (doc: Document) => {
     if (!window.confirm(`Are you sure you want to delete "${doc.name}"?`)) return;
     try {
@@ -87,7 +90,12 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
                   </div>
                 </td>
                 <td>
-                  <span className="badge badge-secondary">{doc.category}</span>
+                  <div className="flex gap-2 items-center">
+                    <span className="badge badge-secondary">{doc.category}</span>
+                    {doc.metadata?.is_signed && (
+                      <span className="badge" style={{ backgroundColor: '#10b981', color: 'white', fontSize: '0.7rem' }}>Signed</span>
+                    )}
+                  </div>
                 </td>
                 <td className="text-muted text-xs uppercase">
                   {doc.file_type?.split('/').pop() || 'Unknown'}
@@ -107,6 +115,15 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
                     >
                       <Download size={16} />
                     </button>
+                    {doc.file_type === 'application/pdf' && !doc.metadata?.is_signed && (
+                      <button 
+                        onClick={() => setSigningDocument(doc)}
+                        className="header-icon-btn text-primary" 
+                        title="Sign Document"
+                      >
+                        <PenTool size={16} />
+                      </button>
+                    )}
                     <button 
                       onClick={() => handleDownload(doc)} // Same URL for preview in new tab
                       className="header-icon-btn" 
@@ -127,6 +144,17 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
             ))}
           </tbody>
         </table>
+
+        {signingDocument && (
+          <SignDocumentModal 
+            document={signingDocument} 
+            onClose={() => setSigningDocument(null)} 
+            onSuccess={() => {
+              setSigningDocument(null);
+              onRefresh();
+            }} 
+          />
+        )}
     </div>
   );
 };
