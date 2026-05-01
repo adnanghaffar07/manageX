@@ -34,181 +34,257 @@ export const SalarySlipModal: React.FC<SalarySlipModalProps> = ({ stub, onClose 
           </div>
         </div>
 
-        {/* Slip Content (Printable area) */}
-        {/* Slip Content (Printable area) */}
-        <div className="bg-white text-[var(--foreground)] printable-slip relative rounded-b-xl" id="salary-slip">
+
+        <div className="bg-white printable-slip relative" id="salary-slip">
           <style>{`
             @media print {
               .no-print { display: none !important; }
-              body { background: white !important; }
-              .modal-overlay { position: static !important; background: transparent !important; display: block !important; padding: 0 !important; }
-              .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; border-radius: 0 !important; }
-              .printable-slip { padding: 0 !important; border-radius: 0 !important; }
-              .slip-header-bg { border-radius: 0 !important; padding: 2rem !important; }
-              .slip-body { padding: 2rem !important; }
+              body { background: white !important; margin: 0; padding: 0; }
+              body * { visibility: hidden; }
+              .modal-overlay, .modal-overlay * { visibility: visible; }
+              .modal-overlay {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+                width: 100% !important;
+                min-height: 100vh !important;
+                z-index: 9999 !important;
+                overflow: visible !important;
+                height: auto !important;
+              }
+              .modal-content {
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                transform: none !important;
+                max-height: none !important;
+                height: auto !important;
+                overflow: visible !important;
+              }
+              #salary-slip {
+                position: static !important;
+                width: 100%;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                background: white !important;
+                box-shadow: none !important;
+              }
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .slip-container { padding: 0 !important; max-width: 100% !important; }
             }
-            .slip-header-bg {
-              background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.15) 100%);
-              border-bottom: 2px solid var(--primary);
-              padding: 2.5rem;
+            .slip-container {
+              font-family: 'Inter', system-ui, sans-serif;
+              color: #000;
+              background: #fff;
+              padding: 40px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            @media (max-width: 640px) {
+              .slip-container { padding: 20px; }
+            }
+            .slip-header {
               display: flex;
               justify-content: space-between;
               align-items: flex-start;
-              position: relative;
-              z-index: 10;
+              margin-bottom: 30px;
             }
-            .slip-body {
-              padding: 2.5rem;
-              position: relative;
-              z-index: 10;
+            .company-name {
+              font-size: 24px;
+              font-weight: 700;
+              color: #000;
+              margin: 0;
             }
-            @media (max-width: 640px) {
-              .slip-header-bg, .slip-body { padding: 1.5rem; }
-              .slip-header-bg { flex-direction: column; gap: 1.5rem; }
+            .company-logo {
+              width: 50px;
+              height: 50px;
+              background-color: #61bb73;
+              color: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 28px;
+              font-weight: bold;
             }
-            .slip-title { font-size: 2.25rem; font-weight: 700; color: var(--foreground); letter-spacing: -0.025em; margin: 0; line-height: 1.2; }
-            .slip-subtitle { font-size: 1.125rem; font-weight: 600; color: var(--foreground); margin: 0; }
-            .slip-text-muted { color: var(--muted-foreground); }
-            .slip-badge { display: inline-block; padding: 0.375rem 1.25rem; background: var(--card); border-radius: 9999px; color: var(--primary); font-weight: 700; font-size: 0.875rem; border: 1px solid var(--primary); text-transform: uppercase; letter-spacing: 0.05em; box-shadow: var(--shadow-sm); margin-bottom: 0.5rem; }
-            
-            .slip-info-box { background-color: var(--secondary); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 2rem; display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-            @media (min-width: 768px) { .slip-info-box { grid-template-columns: 1fr 1fr; } }
-            .slip-info-label { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; }
-            .slip-info-dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--primary); }
-            
-            .slip-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 2rem; border: 1px solid var(--border); border-radius: 0.5rem; overflow: hidden; }
-            .slip-table th, .slip-table td { border-bottom: 1px solid var(--border); padding: 1rem 1.25rem; text-align: left; font-size: 0.875rem; color: var(--foreground); }
-            .slip-table th { background-color: var(--secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; color: var(--muted-foreground); }
-            .slip-table tr:last-child td { border-bottom: none; }
-            .slip-table tr:nth-child(even) td { background-color: rgba(241, 245, 249, 0.3); }
-            .slip-table-bold { font-weight: 600; color: var(--foreground); }
-            .slip-table-sub { font-size: 0.6875rem; color: var(--muted-foreground); margin-top: 0.25rem; font-weight: 500; }
-            
-            .slip-totals { margin-top: 2rem; background: linear-gradient(to right, var(--primary), var(--accent-foreground)); border-radius: 0.75rem; padding: 2px; box-shadow: var(--shadow-md); }
-            .slip-totals-inner { background: var(--card); border-radius: calc(0.75rem - 2px); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-            @media (min-width: 768px) { .slip-totals-inner { flex-direction: row; justify-content: space-between; align-items: center; } }
-            .slip-totals-label { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
-            .slip-totals-amount { font-size: 2rem; font-weight: 900; color: var(--foreground); letter-spacing: -0.025em; line-height: 1; }
-            
-            .signature-line { border-top: 1px dashed var(--input); padding-top: 0.75rem; color: var(--muted-foreground); font-size: 0.875rem; font-weight: 500; text-align: center; }
-            .slip-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; padding: 0 1rem; }
-            @media (min-width: 768px) { .slip-signatures { gap: 4rem; padding: 0 2rem; } }
-            
-            .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: clamp(4rem, 10vw, 8rem); color: rgba(99, 102, 241, 0.03); z-index: 0; font-weight: 900; pointer-events: none; white-space: nowrap; user-select: none; }
+            .slip-title {
+              font-size: 14px;
+              font-weight: 700;
+              padding-bottom: 10px;
+              border-bottom: 1px solid #eaeaea;
+              margin-bottom: 25px;
+              color: #000;
+            }
+            .emp-details-grid {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-bottom: 40px;
+            }
+            .emp-name {
+              font-size: 14px;
+              font-weight: 700;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+              color: #000;
+            }
+            .emp-id {
+              font-size: 12px;
+              color: #333;
+            }
+            .net-pay-box {
+              text-align: right;
+            }
+            .net-pay-label {
+              font-size: 12px;
+              font-weight: 600;
+              color: #333;
+            }
+            .net-pay-amount {
+              font-size: 28px;
+              font-weight: 700;
+              margin: 4px 0;
+              color: #000;
+            }
+            .net-pay-days {
+              font-size: 11px;
+              color: #555;
+            }
+            .data-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 40px;
+              font-size: 13px;
+            }
+            .data-table th {
+              border-top: 1px solid #eaeaea;
+              border-bottom: 1px solid #eaeaea;
+              padding: 12px 0;
+              text-align: left;
+              font-weight: 700;
+              color: #000;
+              text-transform: uppercase;
+              font-size: 12px;
+            }
+            .data-table th.text-right { text-align: right; }
+            .data-table td {
+              padding: 12px 0;
+              vertical-align: top;
+              color: #000;
+              border-bottom: none;
+            }
+            .data-table td.text-right { text-align: right; }
+            .gross-row {
+              font-weight: 700;
+            }
+            .gross-row td {
+              border-top: 1px solid #eaeaea;
+              padding-top: 15px;
+            }
+            .payable-box {
+              background-color: #f0f4fa;
+              padding: 20px;
+              text-align: center;
+              margin-bottom: 30px;
+            }
+            .payable-main {
+              font-size: 14px;
+              color: #000;
+              margin-bottom: 8px;
+            }
+            .payable-main span {
+              font-weight: 700;
+              font-size: 16px;
+            }
+            .payable-sub {
+              font-size: 10px;
+              color: #555;
+            }
+            .sys-gen {
+              text-align: center;
+              font-size: 11px;
+              color: #888;
+              font-style: italic;
+            }
           `}</style>
-          
-          <div className="watermark">CODE AUTOMATION</div>
 
-          <div className="slip-header-bg">
-            <div>
-              <h1 className="slip-title">Code Automation</h1>
-            </div>
-            <div className="text-right sm:text-right text-left">
-              <div className="slip-badge">
-                Pay Slip
-              </div>
-              <p className="slip-subtitle">{stub.month}</p>
-            </div>
-          </div>
-
-          <div className="slip-body">
-            <div className="slip-info-box">
+          <div className="slip-container">
+            <div className="slip-header">
               <div>
-                <div className="slip-info-label">
-                  <span className="slip-info-dot"></span>
-                  Employee Details
-                </div>
-                <p className="text-lg font-bold text-[var(--foreground)] mb-1">{stub.employees?.full_name || stub.employees?.name || 'N/A'}</p>
-                <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-                  <span className="font-medium">ID:</span> 
-                  <span className="font-mono bg-[var(--card)] px-2 py-0.5 rounded border border-[var(--border)] shadow-sm">{stub.employee_id.slice(0, 8).toUpperCase()}</span>
-                </div>
+                <h1 className="company-name">Code Automation</h1>
               </div>
-              <div className="md:text-right flex flex-col justify-between">
-                <div>
-                  <div className="slip-info-label md:justify-end">
-                    <span className="slip-info-dot md:hidden"></span>
-                    Payment Details
-                  </div>
-                  <div className="text-sm text-[var(--muted-foreground)] flex md:justify-end items-center gap-2 mb-2">
-                    <span className="font-medium">Paid On:</span> 
-                    <span className="text-[var(--foreground)] font-medium">{stub.paid_on ? new Date(stub.paid_on).toLocaleDateString() : 'Pending'}</span>
-                  </div>
-                </div>
-                <div className="inline-flex items-center md:justify-end gap-2 text-sm mt-2 md:mt-0">
-                  <div className="bg-[var(--card)] px-3 py-1.5 rounded-lg border border-[var(--border)] shadow-sm flex items-center gap-2">
-                    <span className="text-[var(--muted-foreground)] font-medium">Attendance:</span>
-                    <span className="font-bold text-[var(--primary)]">{stub.worked_days}</span>
-                    <span className="text-[var(--muted-foreground)]">/</span>
-                    <span className="text-[var(--foreground)]">{stub.total_days} days</span>
-                  </div>
-                </div>
+              <div className="company-logo">C</div>
+            </div>
+
+            <div className="slip-title">
+              Payslip for the month of {stub.month}
+            </div>
+
+            <div className="emp-details-grid">
+              <div>
+                <div className="emp-name">{stub.employees?.full_name || stub.employees?.name || 'N/A'}</div>
+                <div className="emp-id">Employee ID: {stub.employee_id.slice(0, 8).toUpperCase()}</div>
+              </div>
+              <div className="net-pay-box">
+                <div className="net-pay-label">Employee Net Pay</div>
+                <div className="net-pay-amount">${Number(stub.net_salary).toFixed(2)}</div>
+                <div className="net-pay-days">Paid Days : {stub.worked_days} | LOP Days : {stub.total_days - stub.worked_days}</div>
               </div>
             </div>
 
-            <table className="slip-table">
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th className="w-1/2">Earnings</th>
-                  <th className="text-right w-[20%]">Amount</th>
-                  <th className="w-[30%]">Deductions</th>
-                  <th className="text-right">Amount</th>
+                  <th>EARNINGS</th>
+                  <th className="text-right">AMOUNT</th>
+                  <th>DEDUCTIONS</th>
+                  <th className="text-right">AMOUNT</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    <div className="slip-table-bold">Basic Salary</div>
-                    <div className="slip-table-sub">
-                      (${Number(stub.basic_salary).toFixed(2)} / {stub.total_days} days × {stub.worked_days} worked days)
-                    </div>
-                  </td>
-                  <td className="text-right slip-table-bold">${((Number(stub.basic_salary) / stub.total_days) * stub.worked_days).toFixed(2)}</td>
-                  <td className="slip-table-bold" style={{ fontWeight: 500 }}>Tax & Other Deductions</td>
-                  <td className="text-right slip-table-bold">${Number(stub.deductions).toFixed(2)}</td>
+                  <td>Basic</td>
+                  <td className="text-right">${((Number(stub.basic_salary) / stub.total_days) * stub.worked_days).toFixed(2)}</td>
+                  <td>Tax & Other Deductions</td>
+                  <td className="text-right">${Number(stub.deductions).toFixed(2)}</td>
                 </tr>
                 <tr>
-                  <td className="slip-table-bold">Allowances</td>
-                  <td className="text-right slip-table-bold">${Number(stub.allowances).toFixed(2)}</td>
+                  <td>Allowances</td>
+                  <td className="text-right">${Number(stub.allowances).toFixed(2)}</td>
                   <td></td>
                   <td className="text-right"></td>
                 </tr>
-                <tr className="bg-[rgba(99,102,241,0.05)]">
-                  <td className="font-bold py-4 border-t-2 border-[var(--primary)]" style={{ color: 'var(--foreground)' }}>Total Earnings</td>
-                  <td className="text-right font-bold text-[var(--success)] py-4 border-t-2 border-[var(--primary)]">${(((Number(stub.basic_salary) / stub.total_days) * stub.worked_days) + Number(stub.allowances)).toFixed(2)}</td>
-                  <td className="font-bold py-4 border-t-2 border-[var(--primary)]" style={{ color: 'var(--foreground)' }}>Total Deductions</td>
-                  <td className="text-right font-bold text-[var(--destructive)] py-4 border-t-2 border-[var(--primary)]">${Number(stub.deductions).toFixed(2)}</td>
+                <tr className="gross-row">
+                  <td>Gross Earnings</td>
+                  <td className="text-right">${(((Number(stub.basic_salary) / stub.total_days) * stub.worked_days) + Number(stub.allowances)).toFixed(2)}</td>
+                  <td>Total Deductions</td>
+                  <td className="text-right">${Number(stub.deductions).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
 
-            <div className="slip-totals">
-              <div className="slip-totals-inner">
-                <div>
-                  <div className="slip-totals-label">Net Payable Amount</div>
-                  <div className="slip-totals-amount">
-                    ${Number(stub.net_salary).toFixed(2)}
-                  </div>
-                </div>
-                <div className="md:text-right max-w-full md:max-w-[50%] mt-4 md:mt-0">
-                  <div className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Amount in words</div>
-                  <div className="text-sm font-semibold capitalize leading-tight" style={{ color: 'var(--foreground)' }}>{netSalaryWords(Number(stub.net_salary))}</div>
-                </div>
+            <div className="payable-box">
+              <div className="payable-main">
+                Total Net Payable <span>${Number(stub.net_salary).toFixed(2)}</span> ({netSalaryWords(Number(stub.net_salary))})
+              </div>
+              <div className="payable-sub">
+                Total Net Payable = (Gross Earnings - Total Deductions)
               </div>
             </div>
 
-            <div className="slip-signatures">
-              <div className="signature-line">
-                Employer Signature
-              </div>
-              <div className="signature-line">
-                Employee Signature
-              </div>
-            </div>
-
-            <div className="mt-12 pt-6 border-t border-dashed border-[var(--border)] text-center text-xs font-medium slip-text-muted">
-              <p>This is a computer-generated document and does not require a physical signature.</p>
-              <p className="mt-1">© {new Date().getFullYear()} Code Automation. All rights reserved.</p>
+            <div className="sys-gen">
+              -This is system generated payslip-
             </div>
           </div>
         </div>
