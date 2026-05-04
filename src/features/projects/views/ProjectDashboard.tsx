@@ -4,7 +4,7 @@ import type { Project } from '../types';
 import { ProjectList } from '../components/ProjectList';
 import { ProjectFormModal } from '../components/ProjectFormModal';
 import { Button } from '../../../components/common/Button';
-import { Plus, Loader2, Briefcase } from 'lucide-react';
+import { Plus, Loader2, Briefcase, CheckCircle } from 'lucide-react';
 
 export const ProjectDashboard: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -45,7 +45,7 @@ export const ProjectDashboard: React.FC = () => {
 
   const activeProjects = projects.filter(p => p.status === 'in_progress').length;
   const completedProjects = projects.filter(p => p.status === 'completed').length;
-  const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
+  // const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -60,32 +60,32 @@ export const ProjectDashboard: React.FC = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-3 sm:gap-6">
         <div className="stat-card primary">
-          <div className="stat-icon-wrapper primary">
+          <div className="stat-icon-wrapper primary hidden sm:flex">
             <Briefcase size={28} />
           </div>
           <div>
-            <p className="text-sm text-muted font-medium mb-1">Active Projects</p>
-            <p className="text-3xl font-bold tracking-tight">{activeProjects}</p>
+            <p className="text-xs sm:text-sm text-muted font-medium mb-1">Total Projects</p>
+            <p className="text-xl sm:text-3xl font-bold tracking-tight">{projects.length}</p>
           </div>
         </div>
         <div className="stat-card warning">
-          <div className="stat-icon-wrapper warning">
+          <div className="stat-icon-wrapper warning hidden sm:flex">
             <Loader2 size={28} className="animate-spin-slow" />
           </div>
           <div>
-            <p className="text-sm text-muted font-medium mb-1">Completed</p>
-            <p className="text-3xl font-bold tracking-tight">{completedProjects}</p>
+            <p className="text-xs sm:text-sm text-muted font-medium mb-1">Active Projects</p>
+            <p className="text-xl sm:text-3xl font-bold tracking-tight">{activeProjects}</p>
           </div>
         </div>
         <div className="stat-card success">
-          <div className="stat-icon-wrapper success">
-             <span className="text-2xl font-bold leading-none">$</span>
+          <div className="stat-icon-wrapper success hidden sm:flex">
+             <CheckCircle size={28} />
           </div>
           <div>
-            <p className="text-sm text-muted font-medium mb-1">Total Value</p>
-            <p className="text-3xl font-bold tracking-tight">${totalBudget.toLocaleString()}</p>
+            <p className="text-xs sm:text-sm text-muted font-medium mb-1">Completed Projects</p>
+            <p className="text-xl sm:text-3xl font-bold tracking-tight">{completedProjects}</p>
           </div>
         </div>
       </div>
