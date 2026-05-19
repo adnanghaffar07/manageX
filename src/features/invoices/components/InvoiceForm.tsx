@@ -516,17 +516,12 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               {/* Header section with Logo and Invoice Meta */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}>
                 <div style={{ width: '240px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                   {formData.logo_url ? (
+                   {formData.logo_url && (
                      <img 
                        src={formData.logo_url} 
                        alt="Logo" 
                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
                      />
-                   ) : (
-                     <div style={{ width: '100%', height: '100%', border: '2px dashed #e2e8f0', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', gap: '0.75rem' }}>
-                       <ImageIcon size={24} />
-                       <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Logo placeholder</span>
-                     </div>
                    )}
                 </div>
                 
