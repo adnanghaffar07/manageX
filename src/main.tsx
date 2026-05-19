@@ -6,6 +6,8 @@ import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 
+console.log('[ManageX] Production build — deployed from main')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
