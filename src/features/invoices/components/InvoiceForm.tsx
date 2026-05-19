@@ -556,11 +556,22 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                       {senders.find(s => s.id === formData.sender_id)?.company_name && (
                         <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.company_name}</p>
                       )}
-                      <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.email}</p>
+                      {senders.find(s => s.id === formData.sender_id)?.phone && (
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.phone}</p>
+                      )}
+                      {senders.find(s => s.id === formData.sender_id)?.email && (
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.email}</p>
+                      )}
                     </>
                   ) : (
                     <>
                       <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{profile?.full_name || profile?.company_name || user?.email?.split('@')[0] || 'Sender Name'}</p>
+                      {profile?.company_name && profile.company_name !== profile.full_name && (
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{profile.company_name}</p>
+                      )}
+                      {profile?.phone && (
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{profile.phone}</p>
+                      )}
                       <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{user?.email}</p>
                     </>
                   )}
@@ -568,7 +579,18 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
                 <div style={{ border: '2px dashed #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
                   <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>To</p>
                   <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{selectedClient?.name || 'Recipient name'}</p>
-                  <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{selectedClient?.email || 'Recipient contact details'}</p>
+                  {selectedClient?.company_name && (
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{selectedClient?.company_name}</p>
+                  )}
+                  {selectedClient?.phone && (
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{selectedClient?.phone}</p>
+                  )}
+                  {selectedClient?.email && (
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{selectedClient?.email}</p>
+                  )}
+                  {!selectedClient && (
+                    <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>Recipient contact details</p>
+                  )}
                 </div>
               </div>
 
