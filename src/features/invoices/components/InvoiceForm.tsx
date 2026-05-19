@@ -3,10 +3,12 @@ import { supabase } from '../../../config/supabase';
 import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import type { Invoice, Client, InvoiceItem, Profile } from '../types';
+import type { Invoice, Client, InvoiceItem, Profile, Sender } from '../types';
 import { fetchClients } from '../../clients/api';
+import { fetchSenders } from '../../senders/api';
 import { Plus, Trash2, Download, Mail, CreditCard, Check, Image as ImageIcon, Upload } from 'lucide-react';
 import { ClientFormModal } from '../../clients/components/ClientFormModal';
+import { SenderFormModal } from '../../senders/components/SenderFormModal';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useToast } from '../../../context/ToastContext';
@@ -22,11 +24,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [senders, setSenders] = useState<Sender[]>([]);
   
   const [isAddingClient, setIsAddingClient] = useState(false);
+  const [isAddingSender, setIsAddingSender] = useState(false);
   
   const [formData, setFormData] = useState({
     client_id: initialData?.client_id || '',
+    sender_id: initialData?.sender_id || '',
     invoice_number: initialData?.invoice_number || `INV-${Math.floor(Math.random() * 100000)}`,
     issue_date: initialData?.issue_date || new Date().toISOString().split('T')[0],
     due_date: initialData?.due_date || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -44,6 +49,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
   useEffect(() => {
     if (user) {
       loadClients();
+      loadSenders();
       loadProfile();
       if (initialData?.id) {
         loadInvoiceItems(initialData.id);
@@ -68,6 +74,16 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
     try {
       const data = await fetchClients(user.id);
       setClients(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadSenders = async () => {
+    if (!user) return;
+    try {
+      const data = await fetchSenders(user.id);
+      setSenders(data);
     } catch (e) {
       console.error(e);
     }
@@ -111,6 +127,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
     const invoicePayload = {
       user_id: user.id,
       client_id: formData.client_id,
+      sender_id: formData.sender_id || null,
       invoice_number: formData.invoice_number,
       status: formData.status,
       issue_date: formData.issue_date,
@@ -225,6 +242,18 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
         />
       )}
 
+      {isAddingSender && (
+        <SenderFormModal
+          onClose={() => setIsAddingSender(false)}
+          onSuccess={(newSender) => {
+            setSenders([newSender, ...senders]);
+            setFormData({ ...formData, sender_id: newSender.id });
+            setIsAddingSender(false);
+            addToast('Sender created', 'success');
+          }}
+        />
+      )}
+
       {/* Strict 2-column flex layout for responsive screens, wraps on mobile */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
         
@@ -250,9 +279,39 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               </div>
             </div>
             <div className="flex flex-col gap-4 mt-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <Input
+                  label="Invoice Number"
+                  value={formData.invoice_number}
+                  onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
+                  required
+                />
+              </div>
+
               <div className="flex flex-col gap-1 w-full">
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-sm font-medium">Client <span className="text-destructive">*</span></label>
+                  <label className="text-sm font-medium">Sender (From)</label>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAddingSender(true)}
+                    className="text-xs text-primary hover:underline font-medium"
+                  >
+                    + Add New
+                  </button>
+                </div>
+                <select
+                  value={formData.sender_id}
+                  onChange={(e) => setFormData({ ...formData, sender_id: e.target.value })}
+                  className="form-input appearance-none cursor-pointer"
+                >
+                  <option value="">Default Profile</option>
+                  {senders.map(s => <option key={s.id} value={s.id}>{s.name} {s.company_name ? `(${s.company_name})` : ''}</option>)}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1 w-full">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-sm font-medium">Client (To) <span className="text-destructive">*</span></label>
                   <button 
                     type="button" 
                     onClick={() => setIsAddingClient(true)}
@@ -491,8 +550,20 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSuccess, onCancel, i
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
                 <div style={{ border: '2px dashed #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
                   <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>From</p>
-                  <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{profile?.full_name || profile?.company_name || user?.email?.split('@')[0] || 'Sender Name'}</p>
-                  <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{user?.email}</p>
+                  {formData.sender_id ? (
+                    <>
+                      <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{senders.find(s => s.id === formData.sender_id)?.name}</p>
+                      {senders.find(s => s.id === formData.sender_id)?.company_name && (
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.company_name}</p>
+                      )}
+                      <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{senders.find(s => s.id === formData.sender_id)?.email}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>{profile?.full_name || profile?.company_name || user?.email?.split('@')[0] || 'Sender Name'}</p>
+                      <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{user?.email}</p>
+                    </>
+                  )}
                 </div>
                 <div style={{ border: '2px dashed #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
                   <p style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>To</p>
