@@ -30,10 +30,23 @@ export interface Client {
   created_at: string;
 }
 
+export interface Sender {
+  id: string; // uuid
+  user_id: string; // references profiles(id)
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  company_name: string | null;
+  website: string | null;
+  created_at: string;
+}
+
 export interface Invoice {
   id: string; // uuid
   user_id: string; // references profiles(id)
   client_id: string; // references clients(id)
+  sender_id?: string | null; // references senders(id)
   invoice_number: string;
   status: 'draft' | 'sent' | 'paid' | 'overdue';
   issue_date: string;
